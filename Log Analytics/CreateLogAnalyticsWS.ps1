@@ -1,8 +1,8 @@
 #Variables for common values
-$ResourceGroupName = "ResourceGroup01"
-$SubscriptionID = "SubscriptionID"
-$WorkspaceName = "DefaultWorkspace-" + (Get-Random -Maximum 99999) + "-" + $ResourceGroupName
-$Location = "eastus"
+$ResourceGroupName = "RG_Management"
+$SubscriptionID = "2a554470-531a-446f-addc-79f4ea91967a"
+$WorkspaceName = "CustWorkspace-" + (Get-Random -Maximum 99999) + "-" + $ResourceGroupName
+$Location = "northeurope"
 
 # Stop the script if any errors occur
 $ErrorActionPreference = "Stop"
@@ -50,6 +50,6 @@ try {
 
     Write-Output "Creating new workspace named $WorkspaceName in region $Location..."
     # Create the new workspace for the given name, region, and resource group
-    $Workspace = New-AzureRmOperationalInsightsWorkspace -Location $Location -Name $WorkspaceName -Sku Standard -ResourceGroupName $ResourceGroupName
+    $Workspace = New-AzureRmOperationalInsightsWorkspace -Location $Location -Name $WorkspaceName -Sku Free -ResourceGroupName $ResourceGroupName
 
 }
