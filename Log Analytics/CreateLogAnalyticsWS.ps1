@@ -1,8 +1,8 @@
 #Variables for common values
 $ResourceGroupName = "RG_Management"
-$SubscriptionID = "2a554470-531a-446f-addc-79f4ea91967a"
-$WorkspaceName = "CustWorkspace-" + (Get-Random -Maximum 99999) + "-" + $ResourceGroupName
-$Location = "northeurope"
+$SubscriptionID = "entersubID"
+$WorkspaceName = "CustWorkspace-111000999" 
+$Location = "westeurope"
 
 # Stop the script if any errors occur
 $ErrorActionPreference = "Stop"
