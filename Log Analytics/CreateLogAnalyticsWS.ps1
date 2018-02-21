@@ -1,5 +1,5 @@
 #Variables for common values
-$ResourceGroupName = "RG_Management"
+$ResourceGroupName = "RG_Management1"
 $SubscriptionID = "entersubID"
 $WorkspaceName = "CustWorkspace-111000999" 
 $Location = "westeurope"
