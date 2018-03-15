@@ -1,0 +1,1 @@
+Get-ChildItem “C:\path” -recurse | Select-String -pattern “find me” | group path | select name
