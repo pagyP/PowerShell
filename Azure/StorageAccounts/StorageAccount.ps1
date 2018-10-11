@@ -1,0 +1,2 @@
+
+New-AzureRmStorageAccount -Name sapmp1234567 -ResourceGroupName rg_storageaccounts -Location northeurope -EnableHttpsTrafficOnly $true -SkuName standard_lrs -Kind StorageV2 -Tag @{environment="prod";region="uk"}
