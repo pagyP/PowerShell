@@ -1,5 +1,6 @@
 Function Get-Uptime {
- #Get all enabled servers that are in the domain.
+#To run against servers in a domain review the below examples
+#Get all enabled servers that are in the domain.
 #$Servers = Get-ADComputer -Filter {(OperatingSystem -like "*Server*") -and (Enabled -eq $true)} -Properties OperatingSystem | select -ExpandProperty Name | Sort-Object
 #Get all reboot times and put them in a variable to reference later.
 #$Reboots = Get-Uptime -ComputerName $Servers
@@ -37,7 +38,7 @@ Function Get-Uptime {
                                 Uptime        = ([String]$Uptime.Days + " Days " + $Uptime.Hours + " Hours " + $Uptime.Minutes + " Minutes")
                                 }
  
-                $Object = New-Object -TypeName PSObject -Property $Properties | Select ComputerName, LastBoot, UpTime
+                $Object = New-Object -TypeName PSObject -Property $Properties | Select-Object ComputerName, LastBoot, UpTime
  
             } catch {
                 if ($ShowOfflineComputers) {
@@ -49,7 +50,7 @@ Function Get-Uptime {
                                     Uptime        = "Error Shown Below"
                                     }
  
-                    $Object = New-Object -TypeName PSObject -Property $Properties | Select ComputerName, LastBoot, UpTime
+                    $Object = New-Object -TypeName PSObject -Property $Properties | Select-Object ComputerName, LastBoot, UpTime
                 }
                 
             } finally {
