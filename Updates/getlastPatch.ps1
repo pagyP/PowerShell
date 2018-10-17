@@ -1,0 +1,2 @@
+Get-ADComputer -Filter {(OperatingSystem -like "*Server*") -and (Enabled -eq $true)} -Properties OperatingSystem | select -ExpandProperty Name >c:\computers.txt
+get-content c:\computers.txt | Where {$_ -AND (Test-Connection $_ -Quiet)} | foreach { Get-Hotfix -computername $_ | Select CSName,Description,HotFixID,InstalledBy,InstalledOn -Last 1 } | export-csv c:\serverhotfix.csv -NoTypeInformation
