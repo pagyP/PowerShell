@@ -7,11 +7,13 @@ Set-PSRepository -Name psgallery -InstallationPolicy Trusted
 Install-module -Name PendingReboot 
 Install-Module -Name ImportExcel 
 Add-WindowsFeature -Name Rsat-AD-PowerShell
+md c:\scripts
  
 #Import from Active Directory any computer object which is running a server OS and is enabled and out to c:\computers.txt 
-Get-ADComputer -Filter {(OperatingSystem -like "*Server*") -and (Enabled -eq $true)} -Properties OperatingSystem | Select-Object -ExpandProperty Name >c:\computers.txt
+Get-ADComputer -Filter {(OperatingSystem -like "*Server*") -and (Enabled -eq $true)} -Properties OperatingSystem | Select-Object -ExpandProperty Name >c:\scripts\computers.txt
 #Variables Section
-$servers = Get-Content c:\computers.txt 
+$servers = Get-Content c:\scripts\computers.txt 
+#Adjust this date for the range you want event logs from, i.e. -4 is the previous 4 days from todays date
 $date = (get-date).AddDays(-4)
 
 #Use Test-PendingReboot module to query for pending reboots for Windows Updates and export to c:\serverinfo.xlsx
@@ -19,7 +21,7 @@ Test-PendingReboot -ComputerName $Servers -SkipPendingFileRenameOperationsCheck 
 
 
 #Here we get the most recent hotifx installed and the date on which it was installed
-get-content c:\computers.txt | Where-Object {$_ -AND (Test-Connection $_ -Quiet)} | ForEach-Object { Get-Hotfix -computername $_ | Select-Object Csname,Description,HotFixID,InstalledBy,InstalledOn -Last 1 } | Export-Excel -worksheetname hotfix -path c:\serverinfo.xlsx 
+get-content c:\scripts\computers.txt | Where-Object {$_ -AND (Test-Connection $_ -Quiet)} | ForEach-Object { Get-Hotfix -computername $_ | Select-Object Csname,Description,HotFixID,InstalledBy,InstalledOn -Last 1 } | Export-Excel -worksheetname hotfix -path c:\serverinfo.xlsx 
 
 #Get the most recent boot time of servers and export to c:\serverinfo.xlsx
 Get-WmiObject win32_OperatingSystem -ComputerName $servers | Select-Object csname, @{LABEL='LastBootUpTime';EXPRESSION={$_.ConverttoDateTime($_.lastbootuptime)}} | Export-Excel -WorksheetName lastboot -Path C:\serverinfo.xlsx
