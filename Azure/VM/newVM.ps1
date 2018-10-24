@@ -1,11 +1,11 @@
-# Variables    
-## Global
+## Begin Variables    
+#Global
 $ResourceGroupName = "RG_Webserver"
 $Location = "NorthEurope"
 $existingVnet = "myVnet"
 $existingVnetResourceGroup = "rg_networks_ne"
 
-## BootDiagStorage
+#BootDiagStorage
 $bootDiagsStorageName = "sanebootdiagnostics"
 $bootDiagsStorageResourceGroup = 'RG_Networks_ne'
 
@@ -20,17 +20,15 @@ $storageaccname = "saprodautomation"
 #$storagekey = "1234ABCD"
 $ProtectedSettings = @{"storageAccountName" = $storageaccname;  "commandToExecute" = "powershell -ExecutionPolicy Unrestricted -File Initialise-VM.ps1"};
 
-
-
 ##Disk Storage Type
 $diskType = 'StandardSSD_LRS'
 #diskType = "Standard_LRS"
 #diskType = "Premium_LRS"
 
-## Get the existing vnet
+#Get the existing vnet
 $VNet = Get-AzureRmVirtualNetwork -Name $existingVnet -ResourceGroupName $existingVnetResourceGroup
 
-## Compute
+#Compute
 $VMName = "web-01"
 #$ComputerName = "web-01"
 $VMSize = "Standard_b1ms"
@@ -41,12 +39,12 @@ $credential = Get-Credential -Message "Enter a username and password for the vir
 #Define NIC Name
 $InterfaceName = ($VMname.ToLower()+"-NIC")
 
-# Resource Group
+##End Variables
+
+#Create Resource Group
 New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location
 
-
-
-# Create NIC, attach to subnet
+#Create NIC, attach to subnet
 #$PIp = New-AzureRmPublicIpAddress -Name $InterfaceName -ResourceGroupName $ResourceGroupName -Location $Location -AllocationMethod Dynamic
 $Interface = New-AzureRmNetworkInterface -Name $InterfaceName -ResourceGroupName $ResourceGroupName -Location $Location -SubnetId $VNet.Subnets[0].Id 
 
@@ -60,12 +58,8 @@ $vmConfig = New-AzureRmVMConfig -VMName $vmname -VMSize $VMSize | `
     Add-AzureRmVMDataDisk -DiskSizeInGB 20 -Name "$($VMname)-datadisk" -Lun 0 -CreateOption Empty -StorageAccountType $diskType | `
     Set-AzureRmVMBootDiagnostics -Enable -ResourceGroupName $bootDiagsStorageResourceGroup -StorageAccountName $bootDiagsStorageName
 
-    ## Create the VM in Azure
+ #Create the VM in Azure
 New-AzureRmVM -ResourceGroupName $ResourceGroupName -Location $Location -VM $vmConfig
 
-#Set the locale settings 
-
-
-
-#run command
+#Apply Custom Script Extension which applies UK region settings to the VM
 Set-AzureRmVMExtension -ResourceGroupName $ResourceGroupName -Location $Location -VMName $VMName -Name "localesettings" -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension"  -TypeHandlerVersion "1.9" -Settings $Settings -ProtectedSettings $ProtectedSettings 
