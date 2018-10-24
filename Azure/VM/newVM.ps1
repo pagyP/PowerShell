@@ -2,10 +2,24 @@
 ## Global
 $ResourceGroupName = "RG_Webserver"
 $Location = "NorthEurope"
+$existingVnet = "myVnet"
+$existingVnetResourceGroup = "rg_networks_ne"
 
 ## BootDiagStorage
-#$bootDiagsStorageName = "sanebootdiagnostics"
-#$bootDiagsStorageResourceGroup = 'RG_Networks_ne'
+$bootDiagsStorageName = "sanebootdiagnostics"
+$bootDiagsStorageResourceGroup = 'RG_Networks_ne'
+
+#Storage account where the Initialise-VM script and UKRegion.xml are stored - UPDATE THIS!!
+$fileUri = @("https://saprodautomation.blob.core.windows.net/prodpowershelldsc/Initialise-VM.ps1",
+"https://saprodautomation.blob.core.windows.net/prodpowershelldsc/UKRegion.xml")
+
+$Settings = @{"fileUris" = $fileUri};
+
+$storageaccname = "saprodautomation"
+#Storage Account key not needed if the above files are in publically available storage
+#$storagekey = "1234ABCD"
+$ProtectedSettings = @{"storageAccountName" = $storageaccname;  "commandToExecute" = "powershell -ExecutionPolicy Unrestricted -File Initialise-VM.ps1"};
+
 
 
 ##Disk Storage Type
@@ -14,11 +28,11 @@ $diskType = 'StandardSSD_LRS'
 #diskType = "Premium_LRS"
 
 ## Get the existing vnet
-$VNet = Get-AzureRmVirtualNetwork -Name myvnet -ResourceGroupName rg_networks_ne 
+$VNet = Get-AzureRmVirtualNetwork -Name $existingVnet -ResourceGroupName $existingVnetResourceGroup
 
 ## Compute
 $VMName = "web-01"
-$ComputerName = "web-01"
+#$ComputerName = "web-01"
 $VMSize = "Standard_b1ms"
 #$OSDiskName = $VMName + "-OSDisk"
 # Create user object
@@ -44,7 +58,14 @@ $vmConfig = New-AzureRmVMConfig -VMName $vmname -VMSize $VMSize | `
     Add-AzureRmVMNetworkInterface -Id $interface.Id | `
     Set-AzureRmVMOSDisk -Name "$($vmname)-osdisk" -StorageAccountType $diskType -CreateOption FromImage | `
     Add-AzureRmVMDataDisk -DiskSizeInGB 20 -Name "$($VMname)-datadisk" -Lun 0 -CreateOption Empty -StorageAccountType $diskType | `
-    Set-AzureRmVMBootDiagnostics -Enable -ResourceGroupName RG_Networks_NE -StorageAccountName sanebootdiagnostics
+    Set-AzureRmVMBootDiagnostics -Enable -ResourceGroupName $bootDiagsStorageResourceGroup -StorageAccountName $bootDiagsStorageName
 
     ## Create the VM in Azure
 New-AzureRmVM -ResourceGroupName $ResourceGroupName -Location $Location -VM $vmConfig
+
+#Set the locale settings 
+
+
+
+#run command
+Set-AzureRmVMExtension -ResourceGroupName $ResourceGroupName -Location $Location -VMName $VMName -Name "localesettings" -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension"  -TypeHandlerVersion "1.9" -Settings $Settings -ProtectedSettings $ProtectedSettings 
