@@ -41,8 +41,12 @@ $InterfaceName = ($VMname.ToLower()+"-NIC")
 
 ##End Variables
 
-#Create Resource Group
-New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location
+# Create the resource group if needed
+try {
+    Get-AzureRmResourceGroup -Name $ResourceGroupName -ErrorAction Stop
+} catch {
+    New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location
+}
 
 #Create NIC, attach to subnet
 #$PIp = New-AzureRmPublicIpAddress -Name $InterfaceName -ResourceGroupName $ResourceGroupName -Location $Location -AllocationMethod Dynamic
