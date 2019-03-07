@@ -1,6 +1,6 @@
 ﻿## Begin Variables    
 #Global
-$ResourceGroupName = "RG-Testing"
+$ResourceGroupName = "RG-Testing2"
 $Location = "WestEurope"
 $existingVnet = "core"
 $existingVnetResourceGroup = "core"
@@ -10,7 +10,7 @@ $diagaccountname = "sardsdiag"+"$random"
 $diskType = 'StandardSSD_LRS'
 #$diskType = "Standard_LRS"
 #$diskType = "Premium_LRS"
-$VMName = "SAVERDW001"
+$VMName = "TestVM1"
 $VMSize = "Standard_B2ms"
 #To get a list of available VM sizes available in your chosen Azure region use 
 # Get-AzVMSize -location 
@@ -31,6 +31,16 @@ try {
     New-azResourceGroup -Name $ResourceGroupName -Location $Location
 }
 
+#Storage account where the Initialise-VM script and UKRegion.xml are stored - UPDATE THIS!!
+$fileUri = @("https://sapmpstorage.blob.core.windows.net/localesettings/Initialise-VM.ps1",
+"https://sapmpstorage.blob.core.windows.net/localesettings/UKRegion.xml")
+
+$Settings = @{"fileUris" = $fileUri};
+
+$storageaccname = "sapmpstorage"
+#Storage Account key not needed if the above files are in publically available storage
+#$storagekey = "1234ABCD"
+$ProtectedSettings = @{"storageAccountName" = $storageaccname;  "commandToExecute" = "powershell -ExecutionPolicy Unrestricted -File Initialise-VM.ps1"};
 
 #BootDiagStorage
 New-AzStorageAccount -StorageAccountName $diagaccountname -ResourceGroupName $ResourceGroupName -Location $location -AccessTier hot -kind storagev2 -skuname Standard_LRS 
@@ -70,4 +80,4 @@ $vmConfig = New-azVMConfig -VMName $vmname -VMSize $VMSize -AvailabilitySetId $a
 New-azVM -ResourceGroupName $ResourceGroupName -Location $Location -VM $vmConfig
 
 #Apply Custom Script Extension which applies UK region settings to the VM
-#Set-azVMExtension -ResourceGroupName $ResourceGroupName -Location $Location -VMName $VMName -Name "localesettings" -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension"  -TypeHandlerVersion "1.9" -Settings $Settings -ProtectedSettings $ProtectedSettings 
+Set-azVMExtension -ResourceGroupName $ResourceGroupName -Location $Location -VMName $VMName -Name "localesettings" -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension"  -TypeHandlerVersion "1.9" -Settings $Settings -ProtectedSettings $ProtectedSettings 
