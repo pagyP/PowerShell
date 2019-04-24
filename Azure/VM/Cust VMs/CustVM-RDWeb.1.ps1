@@ -81,3 +81,5 @@ New-azVM -ResourceGroupName $ResourceGroupName -Location $Location -VM $vmConfig
 
 #Apply Custom Script Extension which applies UK region settings to the VM
 Set-azVMExtension -ResourceGroupName $ResourceGroupName -Location $Location -VMName $VMName -Name "localesettings" -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension"  -TypeHandlerVersion "1.9" -Settings $Settings -ProtectedSettings $ProtectedSettings 
+#Apply Tags to the resource group
+Set-AzResourceGroup -Name $ResourceGroupName -Tag @{ IaCMethod="PowerShell"; Customer="Lab"; Environment="Dev" }
