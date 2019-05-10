@@ -1,9 +1,9 @@
 ﻿## Begin Variables    
 #Global
-$ResourceGroupName = "RG-Testing2"
+$ResourceGroupName = "RG_Testing3"
 $Location = "WestEurope"
-$existingVnet = "core"
-$existingVnetResourceGroup = "core"
+$existingVnet = "devHubVnet"
+$existingVnetResourceGroup = "RG_DevNetworkWE"
 $avsetname = "Test-AS"
 $random = Get-Random
 $diagaccountname = "sardsdiag"+"$random"
@@ -64,7 +64,7 @@ $InterfaceName = ($VMname.ToLower()+"-NIC")
 
 #Create NIC, attach to subnet
 #$PIp = New-azPublicIpAddress -Name $InterfaceName -ResourceGroupName $ResourceGroupName -Location $Location -AllocationMethod Dynamic
-$Interface = New-azNetworkInterface -Name $InterfaceName -ResourceGroupName $ResourceGroupName -Location $Location -SubnetId $VNet.Subnets[1].Id 
+$Interface = New-azNetworkInterface -Name $InterfaceName -ResourceGroupName $ResourceGroupName -Location $Location -SubnetId $VNet.Subnets[2].Id 
 
 
 #Define the VM Configuration
@@ -81,3 +81,11 @@ New-azVM -ResourceGroupName $ResourceGroupName -Location $Location -VM $vmConfig
 
 #Apply Custom Script Extension which applies UK region settings to the VM
 Set-azVMExtension -ResourceGroupName $ResourceGroupName -Location $Location -VMName $VMName -Name "localesettings" -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension"  -TypeHandlerVersion "1.9" -Settings $Settings -ProtectedSettings $ProtectedSettings 
+#Apply Tags to the resource group
+Set-AzResourceGroup -Name $ResourceGroupName -Tag @{ IaCMethod="PowerShell"; Customer="Lab"; Environment="Dev" }
+
+$groups = Get-AzResourceGroup -Name $ResourceGroupName
+foreach ($g in $groups)
+{
+    Get-AzResource -ResourceGroupName $g.ResourceGroupName | ForEach-Object {Set-AzResource -ResourceId $_.ResourceId -Tag $g.Tags -Force }
+}
