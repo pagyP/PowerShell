@@ -1,0 +1,1 @@
+Get-AzResourceGroup | ForEach-Object { Start-Job -InputObject $_ -ScriptBlock { $Input | Remove-AzResourceGroup -Force } }
