@@ -1,6 +1,6 @@
 ﻿## Begin Variables    
 #Global
-$ResourceGroupName = "RG_Testing3"
+$ResourceGroupName = "RG_Testing4"
 $Location = "WestEurope"
 $existingVnet = "devHubVnet"
 $existingVnetResourceGroup = "RG_DevNetworkWE"
@@ -74,7 +74,7 @@ $vmConfig = New-azVMConfig -VMName $vmname -VMSize $VMSize -AvailabilitySetId $a
     Add-azVMNetworkInterface -Id $interface.Id | `
     Set-azVMOSDisk -Name "$($vmname)-osdisk" -StorageAccountType $diskType -CreateOption FromImage | `
     #Add-azVMDataDisk -DiskSizeInGB 20 -Name "$($VMname)-datadisk" -Lun 0 -CreateOption Empty -StorageAccountType $diskType | `
-    Set-azVMBootDiagnostics -Enable -ResourceGroupName $ResourceGroupName -StorageAccountName $diagaccountname
+    Set-azVMBootDiagnostic -Enable -ResourceGroupName $ResourceGroupName -StorageAccountName $diagaccountname
 
  #Create the VM in Azure
 New-azVM -ResourceGroupName $ResourceGroupName -Location $Location -VM $vmConfig
@@ -82,7 +82,7 @@ New-azVM -ResourceGroupName $ResourceGroupName -Location $Location -VM $vmConfig
 #Apply Custom Script Extension which applies UK region settings to the VM
 Set-azVMExtension -ResourceGroupName $ResourceGroupName -Location $Location -VMName $VMName -Name "localesettings" -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension"  -TypeHandlerVersion "1.9" -Settings $Settings -ProtectedSettings $ProtectedSettings 
 #Apply Tags to the resource group
-Set-AzResourceGroup -Name $ResourceGroupName -Tag @{ IaCMethod="PowerShell"; Customer="Lab"; Environment="Dev" }
+Set-AzResourceGroup -Name $ResourceGroupName -Tag @{ IaCMethod="PowerShell"; Customer="Lab"; Environment="Dev";shutDown="19:00" }
 
 $groups = Get-AzResourceGroup -Name $ResourceGroupName
 foreach ($g in $groups)
