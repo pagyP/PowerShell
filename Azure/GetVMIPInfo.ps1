@@ -1,0 +1,1 @@
+Get-AzNetworkInterface -ResourceGroupName rg_linuxstudyvms | ForEach { $Interface = $_.Name; $IPs = $_ | Get-AzNetworkInterfaceIpConfig | Select PrivateIPAddress; Write-Host $Interface $IPs.PrivateIPAddress }
