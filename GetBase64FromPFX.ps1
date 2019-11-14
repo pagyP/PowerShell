@@ -1,0 +1,1 @@
+[System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes("path to pfx file"))
