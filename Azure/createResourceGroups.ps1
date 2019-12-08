@@ -15,11 +15,11 @@
 #    Input Array   #
 ####################
 $RGName = @(
-    @{Name="IgniteARMDemo-1";Location='northcentralus'} 
-    @{Name="IgniteARMDemo-2";Location='southcentralus'} 
-    @{Name="IgniteARMDemo-3";Location='centralus'} 
-    @{Name="IgniteARMDemo-4";Location='eastus2'} 
-    @{Name="IgniteARMDemo-5";Location='westus2'} 
+    @{Name="bcprdrgpnetx001";Location='uksouth'} 
+    @{Name="bcprdrgplawx001";Location='uksouth'} 
+    @{Name="bcprdrgpbacx001";Location='uksouth'} 
+    @{Name="bcprdrgptmpx001";Location='uksouth'} 
+    
 )
 
 
@@ -27,9 +27,17 @@ $RGName = @(
 #    Create Resource Groups   #
 ###############################
 foreach ($RG in $RGName) {
+    
+    if (-not(Get-AzResourceGroup -Name $RGName -ErrorAction SilentlyContinue)) {
+        
+    
     New-AzResourceGroup `
         -Name $RG.Name `
         -Location $RG.Location `
-        -Tag @{Environment="Production"} `
-
+        -Tag @{"Cost Centre"="11302";Environment="Prod";Function="Networking";Application="Network"} `
+    }
+    else {
+        Write-Host "Resource Group '$rg' already exists "
+    }
 }
+
