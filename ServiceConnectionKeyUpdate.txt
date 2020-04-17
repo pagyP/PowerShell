@@ -1,0 +1,44 @@
+
+
+# Authenticate to Azure Devops Organization
+
+$AzureDevOpsPAT = ""
+$OrganizationName = ""
+$ProjectName = ""
+$ServiceConnectionName= ""
+
+$KeyVaultName = ""
+$KeyVaultSecretName = ""
+
+$AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($AzureDevOpsPAT)")) }
+
+# Retrieving the Service Connection details
+
+$GetAllServiceConnectionUri = "https://dev.azure.com/$($OrganizationName)/$($ProjectName)/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2"
+
+$GetAllServiceConnectionUriValues = (Invoke-RestMethod -Uri $GetAllServiceConnectionUri -Method get -Headers $AzureDevOpsAuthenicationHeader).value
+
+foreach($GetAllServiceConnectionUriValue in $GetAllServiceConnectionUriValues){
+
+    if(($GetAllServiceConnectionUriValue.name) = $ServiceConnectionName){
+    
+    $ServiceConnectionId = ($GetAllServiceConnectionUriValue.id)
+
+    }
+
+}
+
+$GetServiceConnectionUri = "https://dev.azure.com/$($OrganizationName)/$($ProjectName)/_apis/serviceendpoint/endpoints/$($ServiceConnectionId)?api-version=5.1-preview.2"
+
+$GetResult = Invoke-RestMethod -Uri $GetServiceConnectionUri -Method Get -Headers $AzureDevOpsAuthenicationHeader
+
+# Retrieving the secret from key vault
+$keyvalue = (Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $KeyVaultSecretName).SecretValueText
+
+# Passing the secret value to the configuration
+$GetResult.authorization.parameters.serviceprincipalkey = $keyvalue
+
+$UpdatedResult = $GetResult | ConvertTo-Json -Depth 100
+$UpdatedResult = [Text.Encoding]::UTF8.GetBytes($UpdatedResult)
+
+$UpdatedServiceConnection = Invoke-RestMethod -Uri $GetServiceConnectionUri -Method Put -ContentType "application/json" -Headers $AzureDevOpsAuthenicationHeader -Body $UpdatedResult
